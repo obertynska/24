@@ -328,8 +328,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //send - ajax - form
 
-
-    const sendForm = () => {
+ const sendForm = () => {
         const errorMessage = 'Что то пошло не так',
             loadMessage = 'Загрузка...',
             successMessage = 'Спасибо! Мы скоро с вами свяжемся!',
@@ -337,13 +336,14 @@ window.addEventListener('DOMContentLoaded', function () {
             formTextInput = document.querySelectorAll('input[type=text]'),
             phoneForm = document.querySelectorAll('.form-phone'),
             statusMessage = document.createElement('div');
-
-            statusMessage.style.cssText = 'font-size: 2rem;';
+          
+            statusMessage.style.cssText = 'font-size: 2rem; color: #19b5fe;';
 
         phoneForm.forEach((elem) => {
             elem.addEventListener('input', () => {
-
+                
                 let res = elem.value.match(/^\+?[0-9]*$/g);
+                elem.value = '';
                 if (res) {
                     elem.value = res.join(',');
                 }
@@ -359,8 +359,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
 
         forms.forEach((item) => {
-            item.addEventListener('submit', function (event) {
-                item.preventDefault();
+            item.addEventListener('submit', function(event){
+                event.preventDefault();
                 this.appendChild(statusMessage);
                 statusMessage.textContent = loadMessage;
                 const formData = new FormData(this);
