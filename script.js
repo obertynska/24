@@ -328,144 +328,103 @@ window.addEventListener('DOMContentLoaded', function () {
 
     //send - ajax - form
 
-    const sendForm =() =>{
+
+    const sendForm = () => {
         const errorMessage = 'Что то пошло не так',
             loadMessage = 'Загрузка...',
             successMessage = 'Спасибо! Мы скоро с вами свяжемся!',
-            form = document.getElementById('form1'),
-            formPopUp = document.getElementById('form3'),
-            formContact = document.getElementById('form2'),
+            forms = document.querySelectorAll('form'),
             formTextInput = document.querySelectorAll('input[type=text]'),
             phoneForm = document.querySelectorAll('.form-phone'),
             statusMessage = document.createElement('div');
 
             statusMessage.style.cssText = 'font-size: 2rem;';
 
-            phoneForm.forEach((elem)=>{
-                elem.addEventListener('keyup', ()=>{
-                    elem.value = elem.value.replace(/\D/g, "");                   
-                });
-            });
+        phoneForm.forEach((elem) => {
+            elem.addEventListener('input', () => {
 
-            formTextInput.forEach((elem)=>{
-                elem.addEventListener('keyup', ()=>{
-                    elem.value = elem.value.replace(/[^а-яА-я\s]/g, "");
-                });
+                let res = elem.value.match(/^\+?[0-9]*$/g);
+                if (res) {
+                    elem.value = res.join(',');
+                }
             });
-         
+        });
 
-            form.addEventListener('submit', (event)=>{
-               event.preventDefault();
-               form.appendChild(statusMessage);  
-               statusMessage.textContent = loadMessage;
-               const formData = new FormData(form);
-               let body = {};        
-               formData.forEach((value, key)=>{
-                   body[key] = value;
-               });
-               let inputs = document.querySelectorAll('input');
-               inputs.forEach((elem)=>{
+        formTextInput.forEach((elem) => {
+            elem.addEventListener('input', () => {
+                elem.value = elem.value.replace(/[^а-яА-я\s]/g, "");
+            });
+        });
+
+
+
+        forms.forEach((item) => {
+            item.addEventListener('submit', function (event) {
+                item.preventDefault();
+                this.appendChild(statusMessage);
+                statusMessage.textContent = loadMessage;
+                const formData = new FormData(this);
+                let body = {};
+                formData.forEach((value, key) => {
+                    body[key] = value;
+                });
+                let inputs = document.querySelectorAll('input');
+                inputs.forEach((elem) => {
                     elem.value = '';
-               });  
-               postData(body, ()=>{
-                statusMessage.textContent = successMessage;
-               }, (error)=>{
-                statusMessage.textContent = errorMessage;
-                 console.error(error);
-               }); 
+                });
+                postData(body, () => {
+                    statusMessage.textContent = successMessage;
+                }, (error) => {
+                    statusMessage.textContent = errorMessage;
+                    console.error(error);
+                });
 
             });
 
-            formPopUp.addEventListener('submit', (event)=>{
-                event.preventDefault();
-                statusMessage.style = 'color: white';
-                formPopUp.appendChild(statusMessage);  
-                statusMessage.textContent = loadMessage;
-                const formData = new FormData(formPopUp);
-                let body = {};        
-                formData.forEach((value, key)=>{
-                    body[key] = value;
-                });   
-                let inputs = document.querySelectorAll('input');
-                inputs.forEach((elem)=>{
-                     elem.value = '';
-                });  
-                postData(body, ()=>{
-                 statusMessage.textContent = successMessage;
-                }, (error)=>{
-                 statusMessage.textContent = errorMessage;
-                  console.error(error);
-                }); 
- 
-             });
-
-             formContact.addEventListener('submit', (event)=>{
-                event.preventDefault();
-                statusMessage.style = 'color: white; padding-top: 15px;';
-                formContact.appendChild(statusMessage);  
-                statusMessage.textContent = loadMessage;
-                const formData = new FormData(formContact);
-                let body = {};        
-                formData.forEach((value, key)=>{
-                    body[key] = value;
-                });
-              
-                let inputs = document.querySelectorAll('input');
-                inputs.forEach((elem)=>{
-                     elem.value = '';
-                });
-
-                postData(body, ()=>{
-                 statusMessage.textContent = successMessage;
-                }, (error)=>{
-                 statusMessage.textContent = errorMessage;
-                  console.error(error);
-                }); 
- 
-             });
-
-
-           
+        });
 
 
 
-            const postData = (body, outputData, errorData) => {
-                const request = new XMLHttpRequest();
-
-                request.addEventListener('readystatechange', ()=>{
-                   
-                 
- 
-                 if(request.readyState !==4){
-                     return;
-                 }
- 
-                 if(request.status === 200){
-                     outputData();
-                
-                 }else{
-                     errorData(request.status);
-                
-                 }
-                 
-                 });
- 
- 
-                request.open('POST', './server.php');
-                request.setRequestHeader('Content-Type', 'multipart/form-data');
-                              
-               request.send(JSON.stringify(body));
+        const removeMessage = () => {
+            statusMessage.textContent = "";
+        };
 
 
-             
+        const postData = (body, outputData, errorData) => {
+            const request = new XMLHttpRequest();
 
-            };
+            request.addEventListener('readystatechange', () => {
 
-        
+                if (request.readyState !== 4) {
+                    return;
+                }
 
-           
+                if (request.status === 200) {
+                    outputData();
+                    setTimeout(removeMessage, 2500);
+
+                } else {
+                    errorData(request.status);
+                    setTimeout(removeMessage, 2500);
+
+                }
+
+            });
+
+
+            request.open('POST', './server.php');
+            request.setRequestHeader('Content-Type', 'multipart/form-data');
+
+            request.send(JSON.stringify(body));
+
+
+
+
+        };
+
+
 
     };
-
     sendForm();
+
 });
